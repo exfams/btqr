@@ -9,6 +9,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="transparent">
   <title>Generator Data QRIS Otomatis (Append + Editable)</title>
   <style>
     :root {
@@ -53,6 +55,11 @@
       color: var(--text);
       transition: background var(--transition), color var(--transition);
       min-height: 100vh;
+       padding: env(safe-area-inset-top) env(safe-area-inset-right)
+             env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+
     }
 
     .card {
