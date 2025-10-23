@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Generator Data QRIS Otomatis (Append + Editable)</title>
+  <style>
+    :root {
+      --primary: #0069ff;
+      --radius: 10px;
+      --transition: 0.3s ease;
+    }
+
+    body.light {
+      --bg: #f7f7f9;
+      --card-bg: #ffffff;
+      --text: #111;
+      --border: #ddd;
+      --hint: #666;
+      --input-bg: #fff;
+      --textarea-bg: #f2f8ff;
+      --btn-ghost-bg: #efefef;
+      --btn-ghost-text: #111;
+    }
+
+    body.dark {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --text: #ffffff;
+      --border: #30363d;
+      --hint: #8b949e;
+      --input-bg: #1f242b;
+      --textarea-bg: #1f2a38;
+      --btn-ghost-bg: #2f343d;
+      --btn-ghost-text: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial;
+      margin: 0;
+      padding: 12px;
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+      min-height: 100vh;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 16px;
+      width: 100%;
+      max-width: 580px;
+      margin: 0 auto;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      transition: background var(--transition);
+    }
+
+    h2 {
+      text-align: center;
+      margin: 0 0 20px 0;
+      color: var(--primary);
+      font-size: clamp(1.4rem, 5vw, 1.8rem);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+
+    input[type="text"], input[type="datetime-local"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 4px rgba(0, 105, 255, 0.4);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    .row.full-width {
+      grid-template-columns: 1fr;
+    }
+
+    button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-primary { 
+      background: var(--primary); 
+      color: #fff;
+      grid-column: auto;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    .btn-ghost { 
+      background: var(--btn-ghost-bg); 
+      color: var(--btn-ghost-text); 
+    }
+
+    .btn-danger { 
+      background: #dc3545; 
+      color: #fff; 
+    }
+
+    .btn-warning { 
+      background: #ffc107; 
+      color: #000; 
+    }
+
+    .btn-primary:hover, .btn-danger:hover, .btn-warning:hover, .btn-ghost:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--textarea-bg);
+      color: var(--text);
+      padding: 10px;
+      font-family: monospace;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      resize: vertical;
+      white-space: pre;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .theme-toggle {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 6px;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      color: var(--hint);
+      user-select: none;
+    }
+
+    .switch { 
+      position: relative; 
+      display: inline-block; 
+      width: 46px; 
+      height: 24px; 
+    }
+
+    .switch input { 
+      opacity: 0; 
+      width: 0; 
+      height: 0; 
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px; 
+      width: 18px;
+      left: 4px; 
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider { 
+      background-color: var(--primary); 
+    }
+
+    input:checked + .slider:before { 
+      transform: translateX(21px); 
+    }
+
+    /* Mobile responsif */
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+
+      .card {
+        padding: 12px;
+        border-radius: 8px;
+      }
+
+      h2 {
+        margin-bottom: 16px;
+      }
+
+      label {
+        margin-bottom: 5px;
+      }
+
+      input[type="text"], input[type="datetime-local"] {
+        padding: 9px 10px;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      textarea {
+        min-height: 160px;
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      button {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+
+      .row {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .row.full-width {
+        grid-template-columns: 1fr;
+      }
+
+      .theme-toggle {
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+    }
+
+    /* Tablet */
+    @media (min-width: 481px) and (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Desktop */
+    @media (min-width: 769px) {
+      .card {
+        padding: 24px;
+      }
+
+      .row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .row.full-width {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      textarea {
+        min-height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="theme-toggle">
+      <span>🌞</span>
+      <label class="switch">
+        <input id="themeSwitch" type="checkbox">
+        <span class="slider"></span>
+      </label>
+      <span>🌙</span>
+    </div>
+
+    <h2>🧩 Generator Data QRIS</h2>
+
+    <label for="nama">Nama:</label>
+    <input id="nama" type="text" placeholder="contoh: natnatstore" autocomplete="off">
+
+    <label for="link">Link Google Drive:</label>
+    <input id="link" type="text" placeholder="https://drive.google.com/file/d/xxxxx/view" autocomplete="off">
+
+    <label for="uploadTime">🕒 Waktu Upload (opsional):</label>
+    <input id="uploadTime" type="datetime-local">
+
+    <label for="expireTime">⏳ Waktu Expired / Cooldown (opsional):</label>
+    <input id="expireTime" type="datetime-local">
+
+    <div class="row full-width">
+      <button id="generateBtn" class="btn-primary">Generate Codingan</button>
+      <button id="copyBtn" class="btn-ghost">Copy Hasil</button>
+    </div>
+
+    <div class="row">
+      <button id="editLastBtn" class="btn-warning">Edit Terakhir</button>
+      <button id="deleteLastBtn" class="btn-danger">Hapus Terakhir</button>
+      <button id="resetBtn" class="btn-ghost">Reset Semua</button>
+    </div>
+
+    <label for="hasil">Hasil Codingan:</label>
+    <textarea id="hasil" placeholder="Hasil akan muncul di sini..."></textarea>
+  </div>
+
+<script>
+  const namaInput = document.getElementById('nama');
+  const linkInput = document.getElementById('link');
+  const hasil = document.getElementById('hasil');
+  const genBtn = document.getElementById('generateBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const deleteLastBtn = document.getElementById('deleteLastBtn');
+  const editLastBtn = document.getElementById('editLastBtn');
+  const themeSwitch = document.getElementById('themeSwitch');
+  const uploadTimeInput = document.getElementById('uploadTime');
+  const expireTimeInput = document.getElementById('expireTime');
+
+  // Tema awal
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.classList.add(prefersDark ? "dark" : "light");
+  themeSwitch.checked = prefersDark;
+
+  themeSwitch.addEventListener('change', () => {
+    document.body.classList.toggle('dark', themeSwitch.checked);
+    document.body.classList.toggle('light', !themeSwitch.checked);
+    localStorage.setItem('theme', themeSwitch.checked ? 'dark' : 'light');
+  });
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.body.className = savedTheme;
+    themeSwitch.checked = savedTheme === 'dark';
+  }
+
+  function getFormattedTime() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const yyyy = now.getFullYear(), mm = pad(now.getMonth() + 1), dd = pad(now.getDate());
+    const hh = pad(now.getHours()), min = pad(now.getMinutes()), ss = pad(now.getSeconds());
+    const iso = `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+    const expireDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const expireISO = `${expireDate.getFullYear()}-${pad(expireDate.getMonth() + 1)}-${pad(expireDate.getDate())}T${pad(expireDate.getHours())}:${pad(expireDate.getMinutes())}:${pad(expireDate.getSeconds())}`;
+    return { iso, expireISO };
+  }
+
+  genBtn.addEventListener('click', () => {
+    const nama = namaInput.value.trim();
+    const link = linkInput.value.trim();
+    if (!nama || !link) return alert('Nama dan link wajib diisi!');
+
+    const { iso, expireISO } = getFormattedTime();
+    const uploadTime = uploadTimeInput.value || iso;
+    const expireTime = expireTimeInput.value || expireISO;
+
+    const kodeBaru = `
+<tr data-upload="${uploadTime}">
+  <td>${uploadTime.replace('T',' ')}</td>
+  <td>${nama}</td>
+  <td class="status-unduh">
+    <a href="${link}" target="_blank" class="qris-link" data-expire="${expireTime}">UNDUH QRIS <span class="countdown"></span></a>
+  </td>
+</tr>`.trim();
+
+    hasil.value += (hasil.value ? "\n" : "") + kodeBaru;
+    hasil.style.background = '#1a472a';
+    hasil.style.color = '#fff';
+
+    namaInput.value = linkInput.value = '';
+    uploadTimeInput.value = expireTimeInput.value = '';
+    namaInput.focus();
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    const val = hasil.value.trim();
+    if (!val) return alert('Tidak ada hasil untuk disalin.');
+    await navigator.clipboard.writeText(val);
+    copyBtn.textContent = '✅ Disalin!';
+    setTimeout(() => copyBtn.textContent = 'Copy Hasil', 1000);
+  });
+
+  deleteLastBtn.addEventListener('click', () => {
+    const lines = hasil.value.split(/\n+/);
+    const lastIndex = lines.map(l => l.trim()).reverse().findIndex(line => line.startsWith('<tr'));
+    if (lastIndex === -1) return alert('Tidak ada data untuk dihapus.');
+    const indexToRemove = lines.length - 1 - lastIndex;
+    for (let i = indexToRemove; i < lines.length; i++) {
+      if (lines[i].includes('</tr>')) { lines.splice(indexToRemove, i - indexToRemove + 1); break; }
+    }
+    hasil.value = lines.join('\n').trim();
+  });
+
+  editLastBtn.addEventListener('click', () => {
+    const match = hasil.value.match(/<tr[\s\S]*?<\/tr>\s*$/);
+    if (!match) return alert('Tidak ada data untuk diedit.');
+    const last = match[0];
+    const nama = last.match(/<td>(.*?)<\/td>/g)[1].replace(/<\/?td>/g, '');
+    const link = last.match(/href="(.*?)"/)[1];
+    namaInput.value = nama;
+    linkInput.value = link;
+    hasil.value = hasil.value.replace(/<tr[\s\S]*?<\/tr>\s*$/, '').trim();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    hasil.value = '';
+    hasil.style.background = 'var(--textarea-bg)';
+    hasil.style.color = 'var(--text)';
+  });
+</script>
+</body>
+</html>
