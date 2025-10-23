@@ -2,7 +2,7 @@
   "name": "BTQR",
   "short_name": "BTQR",
   "start_url": "./index.html",
-  "display": "fullscreen"
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#2186f3",
