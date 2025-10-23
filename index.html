@@ -312,6 +312,8 @@
     </div>
 
     <h2>🧩 Generator Data QRIS</h2>
+<button id="visitBtn" class="btn-primary" style="margin-top:8px;">SETTING NOMOR</button>
+
 
     <label for="nama">Nama:</label>
     <input id="nama" type="text" placeholder="contoh: natnatstore" autocomplete="off">
@@ -341,6 +343,10 @@
   </div>
 
 <script>
+     document.getElementById('visitBtn').addEventListener('click', () => {
+    window.open('nomor.html', '_blank'); // buka file nomor.html di tab baru
+  });
+
   const namaInput = document.getElementById('nama');
   const linkInput = document.getElementById('link');
   const hasil = document.getElementById('hasil');
