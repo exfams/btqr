@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Transform Nomor Telepon → 2025 + 9 Digit Belakang</title>
+  <style>
+    :root {
+      --bg: #f7f7f9;
+      --card-bg: #fff;
+      --text: #111;
+      --hint: #666;
+      --input-bg: #fff;
+      --border: #ddd;
+      --accent: #0069ff;
+      --copy-bg: #f2f8ff;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --card-bg: #1e1e1e;
+      --text: #f2f2f2;
+      --hint: #aaa;
+      --input-bg: #2a2a2a;
+      --border: #333;
+      --accent: #4c9dff;
+      --copy-bg: #1b2733;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial;
+      padding: 20px;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      font-size: 18px;
+    }
+    .theme-toggle:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 520px;
+      width: 100%;
+      margin-top: 80px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 16px;
+      background: var(--input-bg);
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 5px var(--accent);
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      flex: 1;
+      min-width: 90px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-ghost {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-ghost:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    small.hint {
+      color: var(--hint);
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    #hasil {
+      cursor: pointer;
+      background: var(--copy-bg);
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    /* Responsif penuh */
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+      .card {
+        padding: 16px;
+        margin-top: 70px;
+      }
+      input[type="text"] {
+        font-size: 15px;
+      }
+      button {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+      .theme-toggle {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-toggle" id="themeToggle">🌞</div>
+
+  <div class="card">
+    <label for="phone">Masukkan nomor telepon:</label>
+    <input id="phone" type="text" placeholder="contoh: 089531025895" autocomplete="off" inputmode="numeric" />
+    <small class="hint">Script otomatis mengganti bagian depan menjadi <strong>2025</strong> dan melanjutkan dengan 9 digit terakhir dari input.</small>
+
+    <div class="row">
+      <button id="resetBtn" class="btn-ghost">Reset</button>
+    </div>
+
+    <label for="hasil">Hasil transformasi:</label>
+    <input id="hasil" type="text" readonly placeholder="Klik hasil untuk menyalin" />
+    <small class="hint">Klik hasil di atas untuk otomatis menyalin ke clipboard.</small>
+  </div>
+
+  <script>
+    const input = document.getElementById('phone');
+    const hasilInput = document.getElementById('hasil');
+    const resetBtn = document.getElementById('resetBtn');
+    const toggleBtn = document.getElementById('themeToggle');
+
+    // === Dark/Light Mode ===
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) document.body.classList.add('dark');
+    toggleBtn.textContent = document.body.classList.contains('dark') ? '🌙' : '🌞';
+
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      toggleBtn.textContent = document.body.classList.contains('dark') ? '🌙' : '🌞';
+    });
+
+    // === Fungsi transformasi ===
+    function transformNumber(raw) {
+      const digits = (raw + '').replace(/\D/g, '');
+      if (digits.length < 9) return null;
+      const last9 = digits.slice(-9);
+      return '2025' + last9;
+    }
+
+    // Saat mengetik atau paste nomor
+    input.addEventListener('input', (e) => {
+      const raw = e.target.value;
+      const transformed = transformNumber(raw);
+      if (transformed) {
+        input.value = transformed;
+        hasilInput.value = transformed;
+      } else {
+        hasilInput.value = '';
+      }
+    });
+
+    // Klik hasil otomatis salin
+    hasilInput.addEventListener('click', async () => {
+      const val = hasilInput.value.trim();
+      if (!val) {
+        alert('Belum ada hasil untuk disalin.');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(val);
+        hasilInput.style.background = '#c3ffd6';
+        hasilInput.value = '✅ Tersalin: ' + val;
+        setTimeout(() => {
+          hasilInput.style.background = 'var(--copy-bg)';
+          hasilInput.value = val;
+        }, 1200);
+      } catch (err) {
+        alert('Gagal menyalin, silakan salin manual.');
+      }
+    });
+
+    // Tombol reset
+    resetBtn.addEventListener('click', () => {
+      input.value = '';
+      hasilInput.value = '';
+      input.focus();
+    });
+  </script>
+</body>
+</html>
