@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Form QRIS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 200px;
+            font-family: monospace;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #667eea;
+        }
+
+        .result-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f0f7ff;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            margin-top: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .copied {
+            background: #28a745 !important;
+        }
+
+        .clear-btn {
+            background: #dc3545;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            background: #c82333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Generator Form QRIS</h1>
+        
+       <div id="resultContainer" class="result-container">
+            <h2 style="margin-bottom: 15px;">📋 Hasil Extract:</h2>
+            <div class="result-box">
+                <div class="result-item" id="namaStore"></div>
+                <div class="result-item" id="email"></div>
+                <div class="result-item" id="noTelp"></div>
+            </div>
+            <div class="button-group">
+                <button class="copy-btn" onclick="copyResult()">📄 Salin Hasil</button>
+                <button class="clear-btn" onclick="clearData()">🗑️ Hapus Data</button>
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label for="formInput">Paste Format Data QRIS:</label>
+            <textarea id="formInput" placeholder="Paste format data QRIS di sini..."></textarea>
+        </div>
+
+        <button onclick="generateResult()">🚀 Generate Data</button>
+
+       
+
+    <script>
+        function generateResult() {
+            const input = document.getElementById('formInput').value;
+            
+            // Extract Nama Store
+            const namaStoreMatch = input.match(/Nama Store\s*:\s*(.+)/i);
+            const namaStore = namaStoreMatch ? namaStoreMatch[1].trim() : '';
+            
+            // Extract Email
+            const emailMatch = input.match(/Email Aktif\s*:\s*(.+)/i);
+            const email = emailMatch ? emailMatch[1].trim() : '';
+            
+            // Extract No Telepon
+            const noTelpMatch = input.match(/No tlfn Aktif\s*:\s*(.+)/i);
+            const noTelp = noTelpMatch ? noTelpMatch[1].trim() : '';
+            
+            if (namaStore && email && noTelp) {
+                document.getElementById('namaStore').textContent = namaStore;
+                document.getElementById('email').textContent = email;
+                document.getElementById('noTelp').textContent = noTelp;
+                
+                document.getElementById('resultContainer').classList.add('show');
+                
+                // Smooth scroll to result
+                document.getElementById('resultContainer').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+            } else {
+                alert('⚠️ Format tidak lengkap! Pastikan Nama Store, Email Aktif, dan No tlfn Aktif terisi dengan benar.');
+            }
+        }
+
+        function copyResult() {
+            const namaStore = document.getElementById('namaStore').textContent;
+            const email = document.getElementById('email').textContent;
+            const noTelp = document.getElementById('noTelp').textContent;
+            
+            const resultText = `${namaStore}\n${email}\n${noTelp}`;
+            
+            navigator.clipboard.writeText(resultText).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Tersalin!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Gagal menyalin! Silakan salin manual.');
+            });
+        }
+
+        function clearData() {
+            // Clear textarea input
+            document.getElementById('formInput').value = '';
+            
+            // Clear result display
+            document.getElementById('namaStore').textContent = '';
+            document.getElementById('email').textContent = '';
+            document.getElementById('noTelp').textContent = '';
+            
+            // Hide result container
+            document.getElementById('resultContainer').classList.remove('show');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
