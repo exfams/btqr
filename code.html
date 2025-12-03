@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Web Code Studio - Editor</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: "Segoe UI", sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    height: 45px;
+    background: #2d2d2d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    border-bottom: 1px solid #000;
+    gap: 10px;
+  }
+
+  .topbar .title {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  .topbar button {
+    background: transparent;
+    border: none;
+    color: #d4d4d4;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .topbar button:hover {
+    background: #3a3a3a;
+  }
+  .topbar button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* HIGHLIGHT SEARCH */
+  .search-highlight {
+    background: #ffff00;
+    color: #000;
+    font-weight: bold;
+    animation: highlight-blink 0.6s ease-in-out;
+  }
+
+  @keyframes highlight-blink {
+    0%, 100% { background: #ffff00; }
+    50% { background: #ffcc00; }
+  }
+
+  /* CONTAINER */
+  .container {
+    display: flex;
+    height: calc(100vh - 45px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 60px;
+    background: #252526;
+    border-right: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+  }
+
+  .sidebar-icon {
+    width: 40px;
+    height: 40px;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .sidebar-icon:hover {
+    background: #444;
+  }
+
+  /* EDITOR */
+  .editor {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    background: #1e1e1e;
+    border-right: 1px solid #000;
+  }
+
+  .editor-header {
+    background: #252526;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  textarea {
+    flex: 1;
+    background: #1e1e1e;
+    color: #e8e8e8;
+    padding: 15px;
+    font-family: "Consolas", monospace;
+    font-size: 14px;
+    border: none;
+    outline: none;
+    resize: none;
+    line-height: 1.5;
+  }
+
+  /* PREVIEW */
+  .preview {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .preview-header {
+    background: #252526;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+    font-size: 12px;
+    opacity: 0.7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .error-badge {
+    background: #f44747;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  iframe {
+    flex: 1;
+    border: none;
+    background: white;
+  }
+
+  /* SEARCH MODAL */
+  .search-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-modal.active {
+    display: flex;
+  }
+
+  .search-box {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+    min-width: 300px;
+  }
+
+  .search-box h3 {
+    margin-top: 0;
+    color: #d4d4d4;
+    font-size: 14px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 10px;
+    background: #1e1e1e;
+    border: 1px solid #444;
+    color: #d4d4d4;
+    border-radius: 4px;
+    font-family: "Consolas", monospace;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: #0078ff;
+  }
+
+  .search-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .search-controls button {
+    flex: 1;
+    padding: 8px;
+    background: #0078ff;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .search-controls button:hover {
+    background: #005a9e;
+  }
+
+  .search-controls button.close {
+    background: #444;
+    color: #d4d4d4;
+  }
+
+  .search-results {
+    color: #d4d4d4;
+    font-size: 12px;
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .result-item {
+    background: #1e1e1e;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    border-left: 3px solid #0078ff;
+  }
+
+  .result-item:hover {
+    background: #2a2a2a;
+  }
+
+  /* ERROR MODAL */
+  .error-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .error-modal.active {
+    display: flex;
+  }
+
+  .error-box {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
+    min-width: 350px;
+    border-left: 4px solid #f44747;
+  }
+
+  .error-box h3 {
+    margin-top: 0;
+    color: #f44747;
+    font-size: 14px;
+  }
+
+  .error-message {
+    background: #1e1e1e;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: "Consolas", monospace;
+    font-size: 12px;
+    color: #d4d4d4;
+    margin-bottom: 10px;
+    overflow-x: auto;
+  }
+
+  .error-line {
+    color: #f44747;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .error-box button {
+    width: 100%;
+    padding: 10px;
+    background: #0078ff;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .error-box button:hover {
+    background: #005a9e;
+  }
+
+  /* MOBILE STYLES */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 50px;
+    }
+
+    .sidebar-icon {
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
+    }
+
+    .topbar {
+      flex-wrap: wrap;
+    }
+
+    .topbar .title {
+      flex: 1;
+      min-width: 100%;
+    }
+
+    .topbar button {
+      flex: 1;
+      font-size: 11px;
+      padding: 6px 4px;
+    }
+
+    .editor,
+    .preview {
+      width: 100%;
+      position: absolute;
+      height: calc(100vh - 45px - 60px);
+      top: 45px;
+      left: 0;
+    }
+
+    .editor {
+      left: 50px;
+      width: calc(100% - 50px);
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .preview {
+      left: 50px;
+      width: calc(100% - 50px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .preview.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .editor.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    textarea {
+      font-size: 13px;
+      padding: 12px;
+    }
+
+    .topbar button {
+      padding: 6px 8px;
+    }
+
+    .search-box {
+      min-width: 90vw;
+      max-width: 400px;
+    }
+
+    .error-box {
+      min-width: 90vw;
+      max-width: 400px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .topbar button {
+      font-size: 10px;
+      padding: 4px 6px;
+    }
+
+    textarea {
+      font-size: 12px;
+      padding: 10px;
+    }
+
+    .topbar .title {
+      font-size: 12px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+
+
+<!-- MAIN LAYOUT -->
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-icon">📁</div>
+    <div class="sidebar-icon">⚙️</div>
+    <div class="sidebar-icon" onclick="toggleView()">🖥</div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor">
+    <div class="editor-header">EDITOR</div>
+    <textarea id="codeEditor" oninput="handleCodeChange()"><!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      background: #0078ff;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hello World!</h1>
+  <p>Ini adalah hasil preview dari code editor.</p>
+  <button onclick="alert('Button clicked!')">Click Me</button>
+</body>
+</html></textarea>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview" id="previewPanel">
+    <div class="preview-header">
+      <span>PREVIEW</span>
+      <span class="error-badge" id="errorBadge" style="display: none;">❌ ERROR</span>
+    </div>
+    <iframe id="livePreview"></iframe>
+  </div>
+
+</div>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="title">📄 index.html</div>
+  <button onclick="undo()" id="undoBtn" title="Undo">↶ Undo</button>
+  <button onclick="redo()" id="redoBtn" title="Redo">↷ Redo</button>
+  <button onclick="openSearch()">🔍 Cari</button>
+  <button onclick="copyCode()">📋 Copy</button>
+  <button onclick="resetCode()">♻ Reset</button>
+  <button onclick="downloadCode()">⬇ Download</button>
+</div>
+<!-- SEARCH MODAL -->
+<div class="search-modal" id="searchModal">
+  <div class="search-box">
+    <h3>🔍 Cari dalam Code</h3>
+    <input type="text" id="searchInput" placeholder="Ketik kata, kalimat, atau huruf..." onkeyup="performSearch()">
+    <div class="search-controls">
+      <button onclick="goToPreviousResult()">← Sebelumnya</button>
+      <button onclick="goToNextResult()">Selanjutnya →</button>
+      <button class="close" onclick="closeSearch()">Tutup</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- ERROR MODAL -->
+<div class="error-modal" id="errorModal">
+  <div class="error-box">
+    <h3>⚠️ Ada Kesalahan dalam Coding</h3>
+    <div class="error-message">
+      <div class="error-line" id="errorTitle"></div>
+      <div id="errorDetails"></div>
+    </div>
+    <button onclick="closeError()">Tutup</button>
+  </div>
+</div>
+
+<script>
+  let isEditorMode = true;
+  let searchResults = [];
+  let currentSearchIndex = 0;
+  let history = [""];
+  let historyIndex = 0;
+
+  // UNDO/REDO SYSTEM
+  function handleCodeChange() {
+    const code = document.getElementById("codeEditor").value;
+    
+    // Jika ada perubahan, hapus history yang lebih maju
+    if (historyIndex < history.length - 1) {
+      history = history.slice(0, historyIndex + 1);
+    }
+    
+    history.push(code);
+    historyIndex++;
+    
+    updatePreview();
+  updateUndoRedoButtons();
+    updateUndoRedoButtons();
+  }
+
+  function undo() {
+    if (historyIndex > 0) {
+      historyIndex--;
+      document.getElementById("codeEditor").value = history[historyIndex];
+      updatePreview();
+      updateUndoRedoButtons();
+    }
+  }
+
+  function redo() {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      document.getElementById("codeEditor").value = history[historyIndex];
+      updatePreview();
+      updateUndoRedoButtons();
+    }
+  }
+
+  function updateUndoRedoButtons() {
+    document.getElementById("undoBtn").disabled = historyIndex === 0;
+    document.getElementById("redoBtn").disabled = historyIndex === history.length - 1;
+  }
+
+  function updatePreview() {
+    const code = document.getElementById("codeEditor").value;
+    const iframe = document.getElementById("livePreview");
+    
+    try {
+      // Cek validasi HTML dasar
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = code;
+      
+      iframe.srcdoc = code;
+      document.getElementById("errorBadge").style.display = "none";
+    } catch (err) {
+      showError("HTML Parse Error", err.message);
+      document.getElementById("errorBadge").style.display = "inline-block";
+    }
+
+    // Monitor iframe untuk runtime errors
+    setTimeout(() => {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (iframeDoc) {
+          const scripts = iframeDoc.scripts;
+          // Check untuk syntax errors dalam script
+        }
+      } catch (err) {
+        console.log("Iframe error:", err);
+      }
+    }, 500);
+  }
+
+  function copyCode() {
+    const code = document.getElementById("codeEditor").value;
+    navigator.clipboard.writeText(code);
+    alert("Code berhasil dicopy!");
+  }
+
+  function resetCode() {
+    if (confirm("Yakin ingin reset code?")) {
+      document.getElementById("codeEditor").value = "";
+      updatePreview();
+    }
+  }
+
+  function downloadCode() {
+    const code = document.getElementById("codeEditor").value;
+    const blob = new Blob([code], { type: "text/html" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "index.html";
+    a.click();
+  }
+
+  function toggleView() {
+    const editor = document.querySelector(".editor");
+    const preview = document.getElementById("previewPanel");
+    
+    isEditorMode = !isEditorMode;
+    
+    if (isEditorMode) {
+      editor.classList.remove("hidden");
+      preview.classList.remove("active");
+    } else {
+      editor.classList.add("hidden");
+      preview.classList.add("active");
+    }
+  }
+
+  // SEARCH FUNCTIONALITY
+  function openSearch() {
+    document.getElementById("searchModal").classList.add("active");
+    document.getElementById("searchInput").focus();
+  }
+
+  function closeSearch() {
+    document.getElementById("searchModal").classList.remove("active");
+    searchResults = [];
+    currentSearchIndex = 0;
+  }
+
+  function performSearch() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const code = document.getElementById("codeEditor").value;
+    const resultsDiv = document.getElementById("searchResults");
+
+    if (query.length === 0) {
+      resultsDiv.innerHTML = "";
+      searchResults = [];
+      return;
+    }
+
+    searchResults = [];
+    const lines = code.split("\n");
+    
+    lines.forEach((line, lineNum) => {
+      let index = 0;
+      while ((index = line.toLowerCase().indexOf(query, index)) !== -1) {
+        searchResults.push({
+          line: lineNum + 1,
+          column: index + 1,
+          text: line.trim(),
+          fullLine: line
+        });
+        index += query.length;
+      }
+    });
+
+    currentSearchIndex = 0;
+    displaySearchResults();
+  }
+
+  function displaySearchResults() {
+    const resultsDiv = document.getElementById("searchResults");
+    resultsDiv.innerHTML = "";
+
+    if (searchResults.length === 0) {
+      resultsDiv.innerHTML = '<div style="color: #888;">Tidak ada hasil ditemukan</div>';
+      return;
+    }
+
+    searchResults.forEach((result, idx) => {
+      const div = document.createElement("div");
+      div.className = "result-item" + (idx === currentSearchIndex ? " active" : "");
+      div.innerHTML = `<strong>Baris ${result.line}:</strong> ${result.text.substring(0, 50)}...`;
+      div.onclick = () => {
+        currentSearchIndex = idx;
+        goToResult();
+      };
+      resultsDiv.appendChild(div);
+    });
+
+    resultsDiv.innerHTML = `<div style="color: #0078ff; margin-bottom: 10px;">Ditemukan: ${searchResults.length} hasil</div>` + resultsDiv.innerHTML;
+  }
+
+  function goToNextResult() {
+    if (searchResults.length === 0) return;
+    currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+    goToResult();
+  }
+
+  function goToPreviousResult() {
+    if (searchResults.length === 0) return;
+    currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
+    goToResult();
+  }
+
+  function goToResult() {
+    if (searchResults.length === 0) return;
+    
+    const result = searchResults[currentSearchIndex];
+    const textarea = document.getElementById("codeEditor");
+    const query = document.getElementById("searchInput").value;
+    const lines = textarea.value.split("\n");
+    
+    let position = 0;
+    for (let i = 0; i < result.line - 1; i++) {
+      position += lines[i].length + 1;
+    }
+    position += result.column - 1;
+
+    textarea.focus();
+    textarea.setSelectionRange(position, position + query.length);
+    
+    // Scroll ke posisi
+    const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight);
+    const scrollPosition = (result.line - 1) * lineHeight - textarea.clientHeight / 2;
+    textarea.scrollTop = Math.max(0, scrollPosition);
+    
+    displaySearchResults();
+  }
+
+  // ERROR HANDLING
+  function showError(title, message) {
+    document.getElementById("errorTitle").textContent = title;
+    document.getElementById("errorDetails").textContent = message;
+    document.getElementById("errorModal").classList.add("active");
+  }
+
+  function closeError() {
+    document.getElementById("errorModal").classList.remove("active");
+  }
+
+  // Monitor untuk JavaScript errors
+  window.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "error") {
+      showError("JavaScript Error", event.data.message);
+      document.getElementById("errorBadge").style.display = "inline-block";
+    }
+  });
+
+  updatePreview();
+</script>
+
+</body>
+</html>
