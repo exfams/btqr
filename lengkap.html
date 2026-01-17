@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Format QRIS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2196f3 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2196f3 ;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2196f3  100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 21, 116, 0.156);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-text {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .btn-copy {
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #218838;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .copy-notification.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .emoji {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Generator Format QRIS</h1>
+        
+        <div class="form-group">
+            <label for="pasteInput">Paste Nama & Email:</label>
+            <textarea id="pasteInput" placeholder="Paste format:&#10;Nama Lengkap&#10;email@example.com" rows="3" style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; font-family: 'Segoe UI', sans-serif; resize: vertical;"></textarea>
+        </div>
+
+        <button class="btn-generate" onclick="generateFormat()">
+            ✨ Generate Format
+        </button>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-text" id="resultText"></div>
+            <button class="btn-copy" onclick="copyToClipboard()">
+                📋 Copy ke Clipboard
+            </button>
+        </div>
+    </div>
+
+    <div class="copy-notification" id="copyNotification">
+        ✅ Berhasil disalin ke clipboard!
+    </div>
+
+    <script>
+        function generateFormat() {
+            const pasteInput = document.getElementById('pasteInput').value.trim();
+
+            if (!pasteInput) {
+                alert('⚠️ Harap paste nama dan email terlebih dahulu!');
+                return;
+            }
+
+            // Split berdasarkan baris baru
+            const lines = pasteInput.split('\n').filter(line => line.trim() !== '');
+            
+            if (lines.length < 2) {
+                alert('⚠️ Format tidak valid! Paste dengan format:\nNama\nEmail');
+                return;
+            }
+
+            const nama = lines[0].trim();
+            const email = lines[1].trim();
+
+            const format = `*AKUN QRIS AKTIF* ✅
+
+Nama : ${nama}
+Email : ${email}
+Password : buatqris
+
+*akun sudah diberikan, yang berarti registrasi sudah selesai tidak ada pengembalian dana dan lain lain.*
+
+\`\`\`
+Order = paham dalam sistem ketentuan qris Allpay. Karena qris tanpa menggunakan KTP‼
+\`\`\`
+
+*THANKYOU FOR QRIS AT BUATQRIS.*
+Silahkan berikan ulasan kepercayaan dibawah yaa kak! ^^
+https://t.me/buatqrisallpay/120`;
+
+            document.getElementById('resultText').textContent = format;
+            document.getElementById('resultContainer').classList.add('show');
+        }
+
+        function copyToClipboard() {
+            const resultText = document.getElementById('resultText').textContent;
+            
+            navigator.clipboard.writeText(resultText).then(() => {
+                const notification = document.getElementById('copyNotification');
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                alert('❌ Gagal menyalin: ' + err);
+            });
+        }
+
+        // Auto-generate saat paste
+        document.getElementById('pasteInput').addEventListener('paste', function(e) {
+            setTimeout(() => {
+                generateFormat();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
