@@ -205,7 +205,7 @@
             const email = emailMatch ? emailMatch[1].trim() : '';
             
             // Extract No Telepon
-            const noTelpMatch = input.match(/No tlfn Aktif\s*:\s*(.+)/i);
+            const noTelpMatch = input.match(/No WhatsApp\s*:\s*(.+)/i);
             const noTelp = noTelpMatch ? noTelpMatch[1].trim() : '';
             
             if (namaStore && email && noTelp) {
@@ -221,7 +221,7 @@
                     block: 'nearest'
                 });
             } else {
-                alert('⚠️ Format tidak lengkap! Pastikan Nama Store, Email Aktif, dan No tlfn Aktif terisi dengan benar.');
+                alert('⚠️ Format tidak lengkap!');
             }
         }
 
