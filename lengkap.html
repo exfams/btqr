@@ -168,16 +168,21 @@
             <textarea id="pasteInput" placeholder="Paste format:&#10;Nama Lengkap&#10;email@example.com" rows="3" style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; font-family: 'Segoe UI', sans-serif; resize: vertical;"></textarea>
         </div>
 
-        <button class="btn-generate" onclick="generateFormat()">
+        <button class="btn-copy" onclick="copyToClipboard()">
+                📋 Copy ke Clipboard
+            </button>
+
+            <button class="btn-generate" onclick="generateFormat()">
             ✨ Generate Format
         </button>
 
-        <div class="result-container" id="resultContainer">
+         <div class="result-container" id="resultContainer">
             <div class="result-text" id="resultText"></div>
-            <button class="btn-copy" onclick="copyToClipboard()">
-                📋 Copy ke Clipboard
-            </button>
-        </div>
+            
+            
+
+        
+
     </div>
 
     <div class="copy-notification" id="copyNotification">
@@ -204,21 +209,21 @@
             const nama = lines[0].trim();
             const email = lines[1].trim();
 
-            const format = `*AKUN QRIS AKTIF* ✅
+            const format = `*DATA QRIS AKTIF* ✅
 
 Nama : ${nama}
 Email : ${email}
 Password : buatqris
 
-*akun sudah diberikan, yang berarti registrasi sudah selesai tidak ada pengembalian dana dan lain lain.*
-
+*Data sudah diberikan, yang berarti registrasi sudah selesai tidak ada pengembalian dana dan lain lain.*
 \`\`\`
+
 Order = paham dalam sistem ketentuan qris Allpay. Karena qris tanpa menggunakan KTP‼
 \`\`\`
 
 *THANKYOU FOR QRIS AT BUATQRIS.*
 Silahkan berikan ulasan kepercayaan dibawah yaa kak! ^^
-https://t.me/buatqrisallpay/120`;
+https://whatsapp.com/channel/0029VbC8i9PC6ZvlKIEkjQ2l/103`;
 
             document.getElementById('resultText').textContent = format;
             document.getElementById('resultContainer').classList.add('show');
